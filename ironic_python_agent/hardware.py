@@ -903,10 +903,10 @@ class GenericHardwareManager(HardwareManager):
             # locked by a previous failed attempt.
             try:
                 utils.execute('hdparm', '--user-master', 'u',
-                              '--security-unlock', 'NULL', block_device.name)
+                              '--security-unlock', '', block_device.name)
                 security_lines = self._get_ata_security_lines(block_device)
             except processutils.ProcessExecutionError as e:
-                raise errors.BlockDeviceEraseError('Security password set '
+                raise errors.BlockDeviceEraseError('Security unlock '
                                                    'failed for device '
                                                    '%(name)s: %(err)s' %
                                                    {'name': block_device.name,

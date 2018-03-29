@@ -1406,6 +1406,29 @@ class TestGenericHardwareManager(base.IronicAgentTest):
             'shred', '--force', '--zero', '--verbose', '--iterations', '1',
             '/dev/sda')
 
+    @mock.patch.object(utils, 'execute', autospec=True)
+    def test_erase_block_device_ata_security_previous_fail_recovery(
+            self, mocked_execute):
+        hdparm_output = create_hdparm_info(
+            supported=True, enabled=True, frozen=False, enhanced_erase=False)
+
+        mocked_execute.side_effect = [
+            (hdparm_output, ''),
+            None,
+        ]
+
+        block_device = hardware.BlockDevice('/dev/sda', 'big', 1073741824,
+                                            True)
+        try:
+            self.hardware.erase_block_device(self.node, block_device)
+        except Exception:
+            # we are only testing that --security-unlock is called - we don't
+            # care what happens after
+            pass
+
+        mocked_execute.assert_any_call('hdparm', '--user-master', 'u',
+                                       '--security-unlock', '', '/dev/sda')
+
     @mock.patch.object(hardware.GenericHardwareManager, '_shred_block_device',
                        autospec=True)
     @mock.patch.object(utils, 'execute', autospec=True)
