@@ -912,11 +912,6 @@ class GenericHardwareManager(HardwareManager):
                                                    {'name': block_device.name,
                                                     'err': e})
 
-        if 'enabled' in security_lines:
-            raise errors.BlockDeviceEraseError(
-                ('Block device {} already has a security password set'
-                 ).format(block_device.name))
-
         if 'not frozen' not in security_lines:
             raise errors.BlockDeviceEraseError(
                 ('Block device {} is frozen and cannot be erased'
@@ -926,11 +921,15 @@ class GenericHardwareManager(HardwareManager):
             utils.execute('hdparm', '--user-master', 'u',
                           '--security-set-pass', 'NULL', block_device.name)
         except processutils.ProcessExecutionError as e:
-            raise errors.BlockDeviceEraseError('Security password set '
-                                               'failed for device '
-                                               '%(name)s: %(err)s' %
-                                               {'name': block_device.name,
-                                                'err': e})
+            if 'enabled' in security_lines:
+                error_msg = ('Security password set failed. Block device '
+                             '{device} already has password set: {err}'
+                             ).format(device=block_device.name, err=e)
+            else:
+                error_msg = ('Security password set failed for device '
+                             '{name}: {err}'
+                             ).format(name=block_device.name, err=e)
+            raise errors.BlockDeviceEraseError(error_msg)
 
         # Use the 'enhanced' security erase option if it's supported.
         erase_option = '--security-erase'
