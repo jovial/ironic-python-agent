@@ -1440,7 +1440,6 @@ class TestGenericHardwareManager(base.IronicAgentTest):
         mocked_execute.side_effect = [
             (hdparm_output, ''),
             processutils.ProcessExecutionError(),  # --security-unlock failure
-            (hdparm_output, '')
         ]
 
         block_device = hardware.BlockDevice('/dev/sda', 'big', 1073741824,
