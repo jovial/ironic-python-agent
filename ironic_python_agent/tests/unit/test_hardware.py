@@ -1491,7 +1491,6 @@ class TestGenericHardwareManager(base.IronicAgentTest):
                 supported=True, enabled=True, frozen=False,
                 enhanced_erase=False), ''),
             ('', ''),
-            ('', ''),
             (create_hdparm_info(
                 supported=True, enabled=False, frozen=False,
                 enhanced_erase=False), ''),
